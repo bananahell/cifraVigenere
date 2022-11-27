@@ -1,9 +1,14 @@
 #include "encoder.h"
 
+#include <string>
+#include <vector>
+
 using namespace std;
 
-string encode(const string& message, const string& key) {
-  string encodedMessage = message;
+vector<string> encode(const string& message, const string& key) {
+  vector<string> encodedMessages;
+  encodedMessages.push_back("");
+  encodedMessages.push_back("");
   int messageIndex = 0;
   for (unsigned i = 0; i < message.length(); i++) {
     char letter = message.at(i);
@@ -12,11 +17,12 @@ string encode(const string& message, const string& key) {
     }
     if (letter >= 'A' && letter <= 'Z') {
       letter = vigEncode(letter, key, messageIndex);
-      encodedMessage.at(i) = letter;
+      encodedMessages.at(0).append(string(1, letter));
       messageIndex++;
     }
+    encodedMessages.at(1).append(string(1, letter));
   }
-  return encodedMessage;
+  return encodedMessages;
 }
 
 char vigEncode(char oldLetter, const string& key, int messageIndex) {
