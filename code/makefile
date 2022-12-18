@@ -17,7 +17,7 @@ LIBS =
 INC_PATHS = -I$(INC_PATH)
 
 ##### Compile directives
-FLAGS = -std=c++17 -Wall -pedantic -Wextra -Werror=init-self
+FLAGS = -std=c++17 -Wall -pedantic -Wextra -Werror=init-self -lncursesw
 ##### Extra debugging directives
 DFLAGS = -ggdb -O0 -DDEBUG -g
 ##### Extra release directives

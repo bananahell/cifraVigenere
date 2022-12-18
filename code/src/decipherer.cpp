@@ -4,6 +4,9 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <numeric>
+
+// #include <ncurses.h>
 
 #define MAX_DIVIDER 25
 
@@ -45,7 +48,7 @@ map<int, int> getMostLikelyPassSize(string encodedMessage) {
   map<string, vector<int>> subStringPos;
   map<int, int> sizeLikeliness;
   string subString;
-  int subStringDistance;
+  int subStringDistance, smallerSubStringDist = 0;
 
   for (int subSize = 3; subSize < 6; subSize++) {
     for (unsigned i = 0; i < encodedMessage.length() - subSize; i++) {
@@ -73,19 +76,28 @@ map<int, int> getMostLikelyPassSize(string encodedMessage) {
   }
 
   for (itPos = subStringPos.begin(); itPos != subStringPos.end(); ++itPos) {
+    smallerSubStringDist = 0;
     for (unsigned i = 1; i < itPos->second.size(); i++) {
       subStringDistance = itPos->second.at(i) - itPos->second.at(i - 1);
-      for (int j = 2; j < MAX_DIVIDER; j++) {
-        if (subStringDistance % j == 0) {
-          sizeLikeliness[j]++;
+      if (subStringDistance < smallerSubStringDist || smallerSubStringDist == 0) {
+        smallerSubStringDist = subStringDistance;
+      }
+    }
+    for (int j = 2; j < MAX_DIVIDER; j++) {
+      if (smallerSubStringDist % j == 0) {
+        if (itPos->first == "NAUL") {
+          cout << "NAUL: " << smallerSubStringDist << endl;
+          cout << "J: " << j << endl;
         }
+        sizeLikeliness[j]++;
       }
     }
   }
 
-  cout << "subStringFreq.size() = " << subStringFreq.size()
-       << "; subStringPos.size() = " << subStringPos.size() << endl
-       << endl;
+  // cout << "subStringFreq.size() = " << subStringFreq.size()
+  //      << "; subStringPos.size() = " << subStringPos.size() << endl
+  //      << endl;
+  cout << "Tabela das substrings retiradas da mensagem, de 3 a 6 caracteres, e suas frequencias:" << endl;
   for (it = subStringFreq.begin(); it != subStringFreq.end(); ++it) {
     cout << "(subString - freq - pos): (" << it->first << " -\t" << it->second
          << " -\t";
@@ -97,8 +109,37 @@ map<int, int> getMostLikelyPassSize(string encodedMessage) {
     }
     cout << ")" << endl;
   }
+  cout << endl;
 
   return sizeLikeliness;
+}
+
+vector<vector<double>> getEncodedMsgFreq(int keySize, string encodedMessage) {
+
+  vector<vector<double>> freqTable(keySize, vector<double>(26, 0)); //keySize colunas e tamanho do alfabeto de linhas
+
+  for (unsigned int i = 0; i < encodedMessage.size(); i++) {
+    freqTable[i%keySize][encodedMessage[i]-65]++;
+  }
+
+  for (auto& freqVector : freqTable) {
+    int sumFreq = accumulate(freqVector.begin(), freqVector.end(), 0.0);
+    for (unsigned int i = 0; i < freqVector.size(); i++) {
+      freqVector[i] = (freqVector[i] / sumFreq)*100;
+    } 
+  }
+
+  // cout << endl;
+  // for (auto& freqVector : freqTable) {
+  //   cout << accumulate(freqVector.begin(), freqVector.end(), 0.0) << endl;
+  //   for (auto& item : freqVector) {
+  //     cout << item << " ";
+  //   }
+  //   cout << endl;
+  // }
+
+  return freqTable;
+
 }
 
 vector<string> decipherWithKey(const string& encodedSymbol, const string& key) {
@@ -107,7 +148,7 @@ vector<string> decipherWithKey(const string& encodedSymbol, const string& key) {
   decipheredMessages.push_back("");
   int rawIndex = 0;
   for (unsigned i = 0; i < encodedSymbol.size(); i++) {
-    char letter = encodedSymbol.at(i);
+    char letter = toupper(encodedSymbol.at(i));
     if (letter >= 'A' || letter >= 'Z') {
       letter = vigDecipher(letter, key, rawIndex);
       decipheredMessages.at(0).append(string(1, letter));

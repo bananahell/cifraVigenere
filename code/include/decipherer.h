@@ -37,4 +37,6 @@ std::vector<std::string> decipherWithKey(const std::string&,
  */
 char vigDecipher(char, const std::string&, int);
 
+std::vector<std::vector<double>> getEncodedMsgFreq(int keySize, std::string encodedMessage);
+
 #endif  // DECIPHERER
