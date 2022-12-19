@@ -75,7 +75,7 @@ void decipher(string message) {
   cout << "----------------------------------------" << endl;
 
   vector<string> decipheredMessages = decipherWithKey(message, key);
-  cout << "Mensagem decodificada: " << endl << decipheredMessages[0] << endl;
+  cout << "Mensagem decodificada: " << endl << decipheredMessages[1] << endl;
   cout << "----------------------------------------";
   cout << "----------------------------------------" << endl;
 }
